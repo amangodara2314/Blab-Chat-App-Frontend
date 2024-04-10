@@ -114,6 +114,7 @@ function Chat(props) {
       })
       .then((success) => {
         if (success.data.status == 1) {
+          e.target.reset();
           setErr({ msg: "", flag: false });
           setChat(success.data.popChat);
           sendMessageNotification(selectedChat._id, user._id);
@@ -135,11 +136,59 @@ function Chat(props) {
       </div>
       {selectedChat == null ? (
         <div className="flex-grow bg-gray-100 relative">
+          <div className="flex items-center justify-center bg-white shadow-sm p-4 gap-3 relative">
+            <Link to="/">
+              <IoIosLogOut className="cursor-pointer text-xl md:hidden block" />
+            </Link>
+            <Link to="/profile">
+              <FaUser className="cursor-pointer text-lg md:hidden block" />
+            </Link>
+            <MdOutlineNotificationAdd
+              className={`cursor-pointer md:hidden block ${
+                req === null || req.length === 0
+                  ? "text-xl"
+                  : "text-2xl text-yellow-300"
+              }`}
+              onClick={() => {
+                setShowNotification(true);
+              }}
+            />
+            <svg
+              onClick={() => {
+                setToggle(true);
+              }}
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-8 w-8 text-gray-600 cursor-pointer md:hidden block"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <line x1="2" y1="12" x2="18" y2="12"></line>
+              <line x1="2" y1="6" x2="18" y2="6"></line>
+              <line x1="2" y1="18" x2="18" y2="18"></line>
+            </svg>
+            <div
+              className={`absolute text-sm font-bold text-white bg-green-600 right-[-4px] top-[-3px] rounded-full px-[7px] py-[2px] ${
+                newMessage.length == 0 ? "hidden" : ""
+              }`}
+            >
+              {newMessage.length}
+            </div>
+          </div>
           <div className="max-full mx-auto p-6">
             <div className="flex items-center justify-center h-full">
               <div className="text-gray-500 text-center">
                 <p className="mb-4">Welcome to Blab!</p>
                 <p className="mb-4">Select a user to start chatting.</p>
+                <p className="mb-4 text-2xl text-red-400">
+                  This Project is Under Progess
+                </p>
+                <p className="mb-4 text-2xl text-red-400">
+                  Some Features May Not Work
+                </p>
               </div>
             </div>
           </div>
@@ -171,15 +220,15 @@ function Chat(props) {
               />
               {selectedChat.username}
             </div>
-            {/* <div className="flex items-center gap-3 relative">
+            <div className="flex items-center gap-3 relative">
               <Link to="/">
-                <IoIosLogOut className="cursor-pointer text-xl" />
+                <IoIosLogOut className="cursor-pointer text-xl md:hidden block" />
               </Link>
               <Link to="/profile">
-                <FaUser className="cursor-pointer text-lg" />
+                <FaUser className="cursor-pointer text-lg md:hidden block" />
               </Link>
               <MdOutlineNotificationAdd
-                className={`cursor-pointer ${
+                className={`cursor-pointer md:hidden block ${
                   req === null || req.length === 0
                     ? "text-xl"
                     : "text-2xl text-yellow-300"
@@ -212,7 +261,7 @@ function Chat(props) {
               >
                 {newMessage.length}
               </div>
-            </div> */}
+            </div>
           </div>
           <div className={`max-full mx-auto p-2 md:p-6`}>
             <div

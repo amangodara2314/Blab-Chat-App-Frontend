@@ -4,10 +4,12 @@ import { MainContext } from "../Context/Main";
 import axios from "axios";
 import { useDispatch } from "react-redux";
 import { login } from "../Reducers/user";
+
 function Login(props) {
   const { API_BASE_URL, USER_URL, err, setErr } = useContext(MainContext);
   const dispatcher = useDispatch();
   const navigator = useNavigate();
+
   const loginUser = (e) => {
     e.preventDefault();
     const data = {
@@ -17,7 +19,7 @@ function Login(props) {
     axios
       .post(API_BASE_URL + USER_URL + "login", data)
       .then((success) => {
-        if (success.data.status == 1) {
+        if (success.data.status === 1) {
           dispatcher(login({ user: success.data.user }));
           navigator("/");
         } else {
@@ -26,10 +28,11 @@ function Login(props) {
       })
       .catch((err) => setErr({ msg: err.message, flag: true }));
   };
+
   return (
-    <div className="min-h-screen flex bg-gradient-to-r from-indigo-600 to-purple-500">
+    <div className="min-h-screen flex flex-col lg:flex-row bg-gradient-to-r from-indigo-600 to-purple-500">
       {/* Welcome side */}
-      <div className="flex-1 flex items-center justify-center px-6 py-12">
+      <div className="lg:flex-1 flex items-center justify-center px-6 py-12">
         <div className="text-white text-center">
           <h2 className="text-5xl font-bold mb-6">Welcome to BLAB</h2>
           <p className="text-xl font-semibold">Please login to continue</p>
@@ -37,7 +40,7 @@ function Login(props) {
       </div>
 
       {/* Form side */}
-      <div className="flex-1 flex items-center justify-center px-6 py-12">
+      <div className="lg:flex-1 flex items-center justify-center px-6 py-12">
         <form
           onSubmit={loginUser}
           className="bg-white shadow-md rounded-lg p-8 max-w-md w-full"

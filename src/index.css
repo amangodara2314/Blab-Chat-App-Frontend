@@ -1,0 +1,26 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Width and height of the scrollbar */
+::-webkit-scrollbar {
+    width: 5px;
+    height: 4px;
+  }
+  
+  /* Track (background) */
+  ::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+  
+  /* Handle (thumb) */
+  ::-webkit-scrollbar-thumb {
+    background: gray;
+    border-radius: 4px;
+  }
+  
+  /* Handle on hover */
+  ::-webkit-scrollbar-thumb:hover {
+    background: transparent;
+  }
+  

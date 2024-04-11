@@ -46,7 +46,7 @@ function MainPage(props) {
   return (
     <div className="min-h-screen flex">
       <Sidebar />
-      <div className="flex-grow flex">
+      <div className="flex-grow min-h-full">
         <Outlet />
       </div>
     </div>

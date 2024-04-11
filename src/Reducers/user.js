@@ -18,11 +18,16 @@ const UserSlice = createSlice({
       if (payload.user == undefined) {
         return;
       }
-
       state.user = payload.user;
+    },
+    logout(state, { payload }) {
+      state.user = null;
+      localStorage.removeItem("user");
+      localStorage.removeItem("chat");
+      localStorage.removeItem("newMessage");
     },
   },
 });
 
-export const { login, signup, lsToState } = UserSlice.actions;
+export const { login, signup, lsToState, logout } = UserSlice.actions;
 export default UserSlice.reducer;

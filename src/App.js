@@ -9,14 +9,12 @@ import Profile from "./Pages/Profile";
 import Login from "./Pages/Login";
 import Signup from "./Pages/Signup";
 import { useContext, useEffect } from "react";
-import { useDispatch } from "react-redux";
-import { lsToState } from "./Reducers/user";
 import { MainContext } from "./Context/Main";
 
 function App() {
   const { localToState } = useContext(MainContext);
   useEffect(() => {
-    lsToState();
+    localToState();
   }, []);
   const routes = createBrowserRouter([
     {

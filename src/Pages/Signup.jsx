@@ -9,7 +9,8 @@ function Signup(props) {
   const { setErr, err, USER_URL, API_BASE_URL, dispatcher } =
     useContext(MainContext);
   const [selectedAvatar, setSelectedAvatar] = useState("");
-  const navigator = useNavigate();
+  const [nav, setNav] = useState(false);
+  const navigate = useNavigate();
   const { user } = useSelector((store) => store.user);
   const avatars = [
     "https://shorturl.at/yQTZ7",
@@ -25,6 +26,14 @@ function Signup(props) {
     }
   }, [selectedAvatar]);
 
+  useEffect(() => {
+    if (nav) {
+      console.log("called");
+      navigate("/");
+      setNav(false);
+    }
+  }, [nav]);
+
   const handleSubmit = (e) => {
     e.preventDefault();
     const data = {
@@ -33,7 +42,6 @@ function Signup(props) {
       password: e.target.password.value,
       avatars: selectedAvatar,
     };
-
     if (data.username === "" || data.email === "" || data.password === "") {
       setErr({ msg: "Please Fill All The Inputs", flag: true });
       return;
@@ -49,9 +57,10 @@ function Signup(props) {
       axios
         .post(API_BASE_URL + USER_URL + "create-user", data)
         .then((success) => {
-          if (success.data.status === 1) {
+          console.log(success.data);
+          if (success.data.status == 1) {
             dispatcher(signup({ user: success.data.user }));
-            navigator("/");
+            setNav(true);
           } else {
             setErr({ msg: success.data.msg, flag: true });
           }

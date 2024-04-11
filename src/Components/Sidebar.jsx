@@ -31,6 +31,7 @@ function Sidebar(props) {
     selectedChat,
     newMessage,
     setNewMessage,
+    setIsLogoutOpen,
   } = useContext(MainContext);
   const [query, setQuery] = useState("");
   const { user } = useSelector((store) => store.user);
@@ -155,9 +156,12 @@ function Sidebar(props) {
               <Link to="/profile">
                 <FaUser className="cursor-pointer" />
               </Link>
-              <Link to="/">
-                <IoIosLogOut className="cursor-pointer text-xl" />
-              </Link>
+              <IoIosLogOut
+                className="cursor-pointer text-xl"
+                onClick={() => {
+                  setIsLogoutOpen(true);
+                }}
+              />
             </div>
           </div>
           <div className="mb-4 relative">

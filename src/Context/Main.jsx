@@ -2,7 +2,7 @@ import React, { createContext, useEffect, useState } from "react";
 import axios from "axios";
 import { useDispatch } from "react-redux";
 import socket from "../utils/socket";
-import { lsToState } from "../Reducers/user";
+import { logout, lsToState } from "../Reducers/user";
 export const MainContext = createContext();
 
 function Main(props) {
@@ -21,6 +21,7 @@ function Main(props) {
   const [toggle, setToggle] = useState(false);
   const [showNotification, setShowNotification] = useState(false);
   const [selectedChat, setSelectedChat] = useState(null);
+  const [isLogoutOpen, setIsLogoutOpen] = useState(false);
 
   const sendRequest = (data) => {
     socket.emit("send-request", data);
@@ -34,14 +35,18 @@ function Main(props) {
     const lsuser = JSON.parse(localStorage.getItem("user"));
     const lschat = JSON.parse(localStorage.getItem("chat"));
     const lsMsg = JSON.parse(localStorage.getItem("newMessage"));
-    if (lschat) {
+    if (lschat != null) {
       setSelectedChat(lschat);
     }
-    if (lsMsg) {
+    if (lsMsg != null) {
       setNewMessage(lsMsg);
     }
     dispatcher(lsToState({ user: lsuser }));
   };
+
+  useEffect(() => {
+    localToState();
+  }, []);
 
   useEffect(() => {
     localStorage.setItem("chat", JSON.stringify(selectedChat));
@@ -61,6 +66,11 @@ function Main(props) {
       .catch((err) => {
         console.log(err);
       });
+  };
+  const handleLogout = () => {
+    dispatcher(logout());
+    setNewMessage([]);
+    setSelectedChat(null);
   };
 
   const handleRequest = (reqId, userId, flag) => {
@@ -125,6 +135,9 @@ function Main(props) {
         showNotification,
         setSelectedChat,
         selectedChat,
+        handleLogout,
+        setIsLogoutOpen,
+        isLogoutOpen,
       }}
     >
       {props.children}

@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { MainContext } from "../Context/Main";
 import axios from "axios";
@@ -9,6 +9,10 @@ function Login(props) {
   const { API_BASE_URL, USER_URL, err, setErr } = useContext(MainContext);
   const dispatcher = useDispatch();
   const navigator = useNavigate();
+
+  useEffect(() => {
+    setErr({ msg: "", flag: false });
+  }, []);
 
   const loginUser = (e) => {
     e.preventDefault();

@@ -21,6 +21,9 @@ function Signup(props) {
   ];
 
   useEffect(() => {
+    setErr({ msg: "", flag: false });
+  }, []);
+  useEffect(() => {
     if (selectedAvatar !== "") {
       setErr({ msg: "", flag: false });
     }

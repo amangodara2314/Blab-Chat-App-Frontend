@@ -87,6 +87,7 @@ function Chat(props) {
   useEffect(() => {
     const handleFetchChat = (sender) => {
       handleLogic(sender);
+      setErr({ msg: "", flag: false });
     };
 
     socket.on("fetchChat", handleFetchChat);
@@ -317,7 +318,9 @@ function Chat(props) {
                   {chat == null ? (
                     <div
                       role="status"
-                      className="w-full h-full flex items-center justify-center"
+                      className={`w-full h-full flex items-center justify-center ${
+                        err.flag ? "hidden" : ""
+                      }`}
                     >
                       <svg
                         aria-hidden="true"

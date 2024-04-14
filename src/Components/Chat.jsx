@@ -110,6 +110,9 @@ function Chat(props) {
 
   const sendMessage = (e) => {
     e.preventDefault();
+    if (e.target.text.value == "") {
+      return;
+    }
     axios
       .post(API_BASE_URL + CHAT_URL + "send-message", {
         sender: user._id,

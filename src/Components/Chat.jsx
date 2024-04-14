@@ -129,12 +129,6 @@ function Chat(props) {
       .catch((err) => console.log(err));
   };
 
-  const openSidebar = () => {
-    if (!toggle) {
-      setToggle(true);
-    }
-  };
-
   return (
     <>
       <ResponsiveSidebar />
@@ -192,7 +186,7 @@ function Chat(props) {
               </div>
               <svg
                 onClick={() => {
-                  openSidebar();
+                  setToggle(true);
                 }}
                 xmlns="http://www.w3.org/2000/svg"
                 className="h-8 w-8 text-gray-600 cursor-pointer"

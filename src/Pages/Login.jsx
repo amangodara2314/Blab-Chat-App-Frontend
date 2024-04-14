@@ -34,7 +34,7 @@ function Login(props) {
   };
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row bg-gradient-to-r from-indigo-600 to-purple-500">
+    <div className="h-screen flex flex-col lg:flex-row bg-gradient-to-r from-indigo-600 to-purple-500">
       {/* Welcome side */}
       <div className="lg:flex-1 flex items-center justify-center px-6 py-12">
         <div className="text-white text-center">

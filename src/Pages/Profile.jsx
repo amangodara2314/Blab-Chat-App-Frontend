@@ -19,7 +19,7 @@ const Profile = () => {
   };
 
   return (
-    <div className="w-full bg-gray-100 flex pt-8 justify-center relative">
+    <div className="w-full h-full bg-gray-100 flex pt-8 justify-center relative">
       <Link to="/" className="mr-4 absolute top-3 left-3">
         <svg
           xmlns="http://www.w3.org/2000/svg"

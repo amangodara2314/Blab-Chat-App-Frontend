@@ -1,33 +1,19 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { MainContext } from "../Context/Main";
 import axios from "axios";
 import { useSelector } from "react-redux";
 import { signup } from "../Reducers/user";
+import multiavatar from "@multiavatar/multiavatar/esm";
 
 function Signup(props) {
   const { setErr, err, USER_URL, API_BASE_URL, dispatcher } =
     useContext(MainContext);
-  const [selectedAvatar, setSelectedAvatar] = useState("");
+  const [selectedAvatar, setSelectedAvatar] = useState(null);
+  const [username, setUsername] = useState("");
   const [nav, setNav] = useState(false);
   const navigate = useNavigate();
   const { user } = useSelector((store) => store.user);
-  const avatars = [
-    "https://shorturl.at/yQTZ7",
-    "https://shorturl.at/inzFT",
-    "https://shorturl.at/cnxS7",
-    "https://shorturl.at/syQZ7",
-    "https://shorturl.at/ciyA4",
-  ];
-
-  useEffect(() => {
-    setErr({ msg: "", flag: false });
-  }, []);
-  useEffect(() => {
-    if (selectedAvatar !== "") {
-      setErr({ msg: "", flag: false });
-    }
-  }, [selectedAvatar]);
 
   useEffect(() => {
     if (nav) {
@@ -43,15 +29,10 @@ function Signup(props) {
       username: e.target.username.value,
       email: e.target.email.value,
       password: e.target.password.value,
-      avatars: selectedAvatar,
+      avatars: `https://api.multiavatar.com/${username}.png`,
     };
     if (data.username === "" || data.email === "" || data.password === "") {
       setErr({ msg: "Please Fill All The Inputs", flag: true });
-      return;
-    }
-
-    if (selectedAvatar === "") {
-      setErr({ msg: "Please Choose an Avatar", flag: true });
       return;
     }
 
@@ -77,7 +58,6 @@ function Signup(props) {
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row bg-gradient-to-r from-indigo-600 to-purple-500">
-      {/* Welcome side */}
       <div className="lg:flex-1 flex items-center justify-center px-6 py-12">
         <div className="text-white text-center">
           <div className="text-5xl font-bold mb-6">Welcome to BLAB</div>
@@ -85,7 +65,6 @@ function Signup(props) {
         </div>
       </div>
 
-      {/* Form side */}
       <div className="lg:flex-1 flex items-center justify-center px-6 py-12">
         <form
           onSubmit={handleSubmit}
@@ -109,6 +88,8 @@ function Signup(props) {
               Username
             </label>
             <input
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
               type="text"
               id="username"
               className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
@@ -154,28 +135,26 @@ function Signup(props) {
               className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
             />
           </div>
-          <div className="mb-4">
+          <div
+            className={`mb-4 flex ${
+              username == "" ? "flex-col" : "gap-3 items-center"
+            }`}
+          >
             <label
               htmlFor=""
               className="block text-gray-700 font-semibold mb-2"
             >
-              Choose Avatar
+              Your Avatar
             </label>
-            <div className="flex lg:justify-between flex-wrap lg:gap-0 gap-2">
-              {avatars.map((avatar, index) => (
-                <img
-                  onClick={() => {
-                    setSelectedAvatar(avatar);
-                  }}
-                  src={avatar}
-                  key={index}
-                  alt=""
-                  className={`w-16 h-16 cursor-pointer duration-75 ${
-                    selectedAvatar === avatar ? "border-2 border-black" : ""
-                  }`}
-                />
-              ))}
-            </div>
+            {username == "" ? (
+              "Write Your Username For an Avatar"
+            ) : (
+              <img
+                src={`https://api.multiavatar.com/${username}.png`}
+                className="w-16 h-16"
+                alt=""
+              />
+            )}
           </div>
           <button
             type="submit"

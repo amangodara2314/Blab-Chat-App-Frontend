@@ -10,6 +10,7 @@ import Login from "./Pages/Login";
 import Signup from "./Pages/Signup";
 import { useContext, useEffect } from "react";
 import { MainContext } from "./Context/Main";
+import Group from "./Components/Group";
 
 function App() {
   const { localToState } = useContext(MainContext);
@@ -24,6 +25,11 @@ function App() {
         {
           path: "/",
           element: <Chat />,
+        },
+
+        {
+          path: "/group/:groupId",
+          element: <Group />,
         },
         {
           path: "/profile",

@@ -1,14 +1,16 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { IoCamera } from "react-icons/io5";
 import { LuPencil } from "react-icons/lu";
 import { useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { MainContext } from "../Context/Main";
 
 const Profile = () => {
   const { user } = useSelector((store) => store.user);
-
+  const { selectedChat, selectedGroup } = useContext(MainContext);
   const [about, setAbout] = useState("");
   const [isEditing, setIsEditing] = useState(false);
+  const navigate = useNavigate();
 
   const handleEdit = () => {
     setIsEditing(true);
@@ -20,7 +22,18 @@ const Profile = () => {
 
   return (
     <div className="w-full h-full bg-gray-100 flex pt-8 justify-center relative">
-      <Link to="/" className="mr-4 absolute top-3 left-3">
+      <Link
+        onClick={() => {
+          if (selectedChat) {
+            navigate("/");
+            return;
+          }
+          if (selectedGroup) {
+            navigate(`/group/${selectedGroup._id}`);
+          }
+        }}
+        className="mr-4 absolute top-3 left-3"
+      >
         <svg
           xmlns="http://www.w3.org/2000/svg"
           className="h-6 w-6 text-black cursor-pointer"

@@ -180,7 +180,7 @@ function Chat(props) {
                   className={`cursor-pointer ${
                     req === null || req.length === 0
                       ? "text-xl"
-                      : "text-2xl text-yellow-300"
+                      : "text-2xl text-yellow-400"
                   }`}
                   onClick={() => {
                     setShowNotification(true);

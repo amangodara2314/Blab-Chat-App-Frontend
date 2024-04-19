@@ -45,3 +45,19 @@
     --sidebar-left: 0;
   }
   
+  .active-tab {
+    position: relative;
+    padding-bottom: 8px; /* Adjust the gap between tab name and underline */
+  }
+  
+  .active-tab::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 2px; /* Height of the underline */
+    width: 100%; /* Underline width when tab is active */
+    background-color: white; /* Color of the underline */
+    transition: width 0.3s ease; /* Animation transition */
+  }
+  

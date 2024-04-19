@@ -1,8 +1,14 @@
 import React, { createContext, useEffect, useState } from "react";
 import axios from "axios";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import socket from "../utils/socket";
-import { logout, lsToState } from "../Reducers/user";
+import {
+  logout,
+  lsToState,
+  setNewGroupMessage,
+  setSelectedGroup,
+} from "../Reducers/user";
+import { store } from "../store";
 export const MainContext = createContext();
 
 function Main(props) {
@@ -10,6 +16,7 @@ function Main(props) {
   const USER_URL = process.env.REACT_APP_USER_URL;
   const FRIEND_URL = process.env.REACT_APP_FRIEND_URL;
   const CHAT_URL = process.env.REACT_APP_CHAT_URL;
+  const GROUP_URL = process.env.REACT_APP_GROUP_URL;
 
   const [result, setResult] = useState([]);
   const dispatcher = useDispatch();
@@ -22,6 +29,15 @@ function Main(props) {
   const [showNotification, setShowNotification] = useState(false);
   const [selectedChat, setSelectedChat] = useState(null);
   const [isLogoutOpen, setIsLogoutOpen] = useState(false);
+  const [createGroup, setCreateGroup] = useState(false);
+  const [groups, setGroups] = useState(null);
+  const [newGroup, setNewGroup] = useState(false);
+  const [activeTab, setActiveTab] = useState("chat");
+  const [groupChat, setGroupChat] = useState(null);
+
+  const { user, selectedGroup, newGroupMessage } = useSelector(
+    (store) => store.user
+  );
 
   const sendRequest = (data) => {
     socket.emit("send-request", data);
@@ -35,13 +51,33 @@ function Main(props) {
     const lsuser = JSON.parse(localStorage.getItem("user"));
     const lschat = JSON.parse(localStorage.getItem("chat"));
     const lsMsg = JSON.parse(localStorage.getItem("newMessage"));
+    const lsTab = JSON.parse(localStorage.getItem("activeTab"));
+    const lsGroup = JSON.parse(localStorage.getItem("group"));
+
     if (lschat != null) {
       setSelectedChat(lschat);
     }
     if (lsMsg != null) {
       setNewMessage(lsMsg);
     }
+    if (lsTab != null) {
+      setActiveTab(lsTab);
+    }
+    if (lsGroup != null) {
+      console.log(lsGroup);
+      dispatcher(setSelectedGroup({ g: lsGroup }));
+    }
     dispatcher(lsToState({ user: lsuser }));
+  };
+  const fetchGroups = (userId) => {
+    axios
+      .get(API_BASE_URL + GROUP_URL + "get-group/" + userId)
+      .then((success) => {
+        setGroups(success.data.group);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   useEffect(() => {
@@ -49,9 +85,16 @@ function Main(props) {
   }, []);
 
   useEffect(() => {
+    if (user) fetchGroups(user._id);
+  }, [user]);
+
+  useEffect(() => {
     localStorage.setItem("chat", JSON.stringify(selectedChat));
+    localStorage.setItem("group", JSON.stringify(selectedGroup));
     localStorage.setItem("newMessage", JSON.stringify(newMessage));
-  }, [selectedChat, newMessage]);
+    localStorage.setItem("activeTab", JSON.stringify(activeTab));
+  }, [selectedChat, newMessage, activeTab, selectedGroup]);
+
   const fetchReq = (id) => {
     axios
       .get(API_BASE_URL + FRIEND_URL + "get/" + id)
@@ -96,6 +139,19 @@ function Main(props) {
         console.log(err);
       });
   };
+  console.log(selectedChat);
+
+  const getChat = () => {
+    axios
+      .get(API_BASE_URL + GROUP_URL + "get-chat/" + selectedGroup._id)
+      .then((success) => {
+        if (success.data.status == 1) {
+          setGroupChat(success.data.group.groupMessages);
+        }
+      })
+      .catch((err) => console.log(err));
+  };
+
   const fetchFriends = (userId) => {
     axios
       .get(API_BASE_URL + USER_URL + "get-friends/" + userId)
@@ -106,6 +162,7 @@ function Main(props) {
         console.log(err);
       });
   };
+
   return (
     <MainContext.Provider
       value={{
@@ -123,14 +180,20 @@ function Main(props) {
         handleRequest,
         req,
         fetchFriends,
+        groups,
+        setGroups,
         friends,
         localToState,
         CHAT_URL,
         sendMessageNotification,
         setNewMessage,
+        setSelectedGroup,
         newMessage,
+        activeTab,
+        setActiveTab,
         toggle,
         setToggle,
+        getChat,
         setShowNotification,
         showNotification,
         setSelectedChat,
@@ -138,6 +201,14 @@ function Main(props) {
         handleLogout,
         setIsLogoutOpen,
         isLogoutOpen,
+        createGroup,
+        setCreateGroup,
+        GROUP_URL,
+        fetchGroups,
+        setNewGroup,
+        newGroup,
+        setGroupChat,
+        groupChat,
       }}
     >
       {props.children}

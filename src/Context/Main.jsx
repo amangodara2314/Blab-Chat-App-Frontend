@@ -64,7 +64,6 @@ function Main(props) {
       setActiveTab(lsTab);
     }
     if (lsGroup != null) {
-      console.log(lsGroup);
       dispatcher(setSelectedGroup({ g: lsGroup }));
     }
     dispatcher(lsToState({ user: lsuser }));
@@ -86,7 +85,7 @@ function Main(props) {
 
   useEffect(() => {
     if (user) fetchGroups(user._id);
-  }, [user]);
+  }, [user, selectedChat]);
 
   useEffect(() => {
     localStorage.setItem("chat", JSON.stringify(selectedChat));
@@ -139,7 +138,6 @@ function Main(props) {
         console.log(err);
       });
   };
-  console.log(selectedChat);
 
   const getChat = () => {
     axios

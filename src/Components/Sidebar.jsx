@@ -517,17 +517,19 @@ function Sidebar(props) {
                             setSelectedChat(null);
                             dispatcher(filterNewGroupMessage({ g: g }));
                             dispatcher(setSelectedGroup({ g: g }));
+                            socket.emit("join_room", g._id);
                             return;
                           }
                           if (selectedGroup._id == g._id) {
                             navigator(`/group/${g._id}`);
+                            socket.emit("join_room", g._id);
                             return;
                           }
                           if (selectedGroup._id != g._id) {
                             setSelectedChat(null);
                             setGroupChat(null);
                             dispatcher(filterNewGroupMessage({ g: g }));
-
+                            socket.emit("join_room", g._id);
                             dispatcher(setSelectedGroup({ g: g }));
                             navigator(`/group/${g._id}`);
                             return;

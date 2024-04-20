@@ -63,11 +63,11 @@ function Group(props) {
               (p) => p._id != user._id
             );
             dispatcher(setSelectedGroup({ g: success.data.popGroup }));
-            getChat();
 
             socket.emit("groupMessageNotification", {
-              group: selectedGroup,
+              group: selectedGroup._id,
               members: member,
+              message: success.data.msg,
             });
           } else {
             setErr({ msg: success.data.msg, flag: true });
@@ -80,38 +80,36 @@ function Group(props) {
   useEffect(() => {
     if (user && selectedGroup) {
       getChat();
+      socket.emit("join_room", selectedGroup._id);
     }
   }, [selectedGroup]);
 
-  const handleGroupMessage = useCallback(
-    (data) => {
-      if (user) {
-        fetchGroups(user._id);
-
-        if (selectedGroup == null || data.group._id != selectedGroup?._id) {
-          if (!newGroupMessage.includes(data.group._id)) {
-            dispatcher(setNewGroupMessage({ group: data.group._id }));
-            return;
-          }
-        }
-        if (selectedGroup._id == data.group._id) {
-          // console.log("in");
-          // setGroupChat(data.group.groupMessages);
-          getChat();
+  const handleGroupMessage = (data) => {
+    if (user) {
+      fetchGroups(user._id);
+      if (selectedGroup == null || data.group._id != selectedGroup._id) {
+        if (!newGroupMessage.includes(data.group._id)) {
+          dispatcher(setNewGroupMessage({ group: data.group }));
           return;
         }
       }
-    },
-    [socket]
-  );
-
+    }
+  };
+  useEffect(() => {
+    socket.on("addGroupMessage", (data) => {
+      if (groupChat != null && data.group == groupId) {
+        const prev = [...groupChat, data.message];
+        setGroupChat(prev);
+      }
+    });
+  }, [socket]);
   useEffect(() => {
     socket.on("groupMessage", handleGroupMessage);
 
     return () => {
       socket.off("groupMessage", handleGroupMessage);
     };
-  }, [socket, handleGroupMessage]);
+  }, [socket]);
 
   return (
     <div className="min-h-full bg-gray-100 flex flex-col justify-between">

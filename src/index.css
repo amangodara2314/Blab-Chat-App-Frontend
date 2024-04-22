@@ -27,7 +27,7 @@
   .chat-sidebar {
     position: fixed;
     top: 0;
-    left: var(--sidebar-left);
+    left: 100%;
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.25);
@@ -37,12 +37,12 @@
     transition: left 0.5s ease-in-out;
   }
   
-  .chat-sidebar.closed {
-    --sidebar-left: 100%;
-  }
+  /* .closed {
+      --sidebar-left: 100%;
+    } */
   
-  .chat-sidebar.open {
-    --sidebar-left: 0;
+.open {
+    left: 0;
   }
   
   .active-tab {
@@ -61,3 +61,43 @@
     transition: width 0.3s ease; /* Animation transition */
   }
   
+
+  /* NotFound.css */
+.not-found-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f8f9fa;
+}
+
+.not-found {
+  text-align: center;
+}
+
+.not-found-title {
+  font-size: 3rem;
+  color: #dc3545;
+}
+
+.not-found-text {
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+  color: #6c757d;
+}
+
+.not-found-link {
+  display: inline-block;
+  padding: 10px 20px;
+  font-size: 1.2rem;
+  color: #fff;
+  background-color: #007bff;
+  border: none;
+  border-radius: 4px;
+  text-decoration: none;
+  transition: background-color 0.3s ease;
+}
+
+.not-found-link:hover {
+  background-color: #0056b3;
+}

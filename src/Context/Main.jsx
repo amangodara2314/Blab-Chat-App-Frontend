@@ -5,6 +5,7 @@ import socket from "../utils/socket";
 import {
   logout,
   lsToState,
+  lstoStateGroupMessages,
   setNewGroupMessage,
   setSelectedGroup,
 } from "../Reducers/user";
@@ -34,6 +35,9 @@ function Main(props) {
   const [newGroup, setNewGroup] = useState(false);
   const [activeTab, setActiveTab] = useState("chat");
   const [groupChat, setGroupChat] = useState(null);
+  const [groupName, setGroupName] = useState("");
+  const [selectedMembers, setSelectedMembers] = useState([]);
+  const [openGroupDetails, setOpenGroupDetails] = useState(false);
 
   const { user, selectedGroup, newGroupMessage } = useSelector(
     (store) => store.user
@@ -53,6 +57,7 @@ function Main(props) {
     const lsMsg = JSON.parse(localStorage.getItem("newMessage"));
     const lsTab = JSON.parse(localStorage.getItem("activeTab"));
     const lsGroup = JSON.parse(localStorage.getItem("group"));
+    const groupNoti = JSON.parse(localStorage.getItem("groupMessages"));
 
     if (lschat != null) {
       setSelectedChat(lschat);
@@ -65,6 +70,9 @@ function Main(props) {
     }
     if (lsGroup != null) {
       dispatcher(setSelectedGroup({ g: lsGroup }));
+    }
+    if (groupNoti != null) {
+      dispatcher(lstoStateGroupMessages({ notify: groupNoti }));
     }
     dispatcher(lsToState({ user: lsuser }));
   };
@@ -85,7 +93,7 @@ function Main(props) {
 
   useEffect(() => {
     if (user) fetchGroups(user._id);
-  }, [user, selectedChat]);
+  }, [user, selectedGroup]);
 
   useEffect(() => {
     localStorage.setItem("chat", JSON.stringify(selectedChat));
@@ -138,7 +146,34 @@ function Main(props) {
         console.log(err);
       });
   };
-
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (selectedMembers.length == 0) {
+      return;
+    }
+    const data = {
+      name: groupName,
+      admin: user._id,
+      avatar: `https://api.multiavatar.com/${groupName}.png`,
+      participants: [...selectedMembers, user._id],
+    };
+    axios
+      .post(API_BASE_URL + GROUP_URL + "create-group", data)
+      .then((success) => {
+        if (success.data.status == 1) {
+          fetchGroups(user._id);
+          e.target.reset();
+          setCreateGroup(false);
+          socket.emit("new-group", {
+            members: selectedMembers,
+            group: data,
+          });
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
   const getChat = () => {
     axios
       .get(API_BASE_URL + GROUP_URL + "get-chat/" + selectedGroup._id)
@@ -180,6 +215,7 @@ function Main(props) {
         fetchFriends,
         groups,
         setGroups,
+        handleSubmit,
         friends,
         localToState,
         CHAT_URL,
@@ -207,6 +243,12 @@ function Main(props) {
         newGroup,
         setGroupChat,
         groupChat,
+        groupName,
+        setGroupName,
+        setSelectedMembers,
+        setOpenGroupDetails,
+        openGroupDetails,
+        selectedMembers,
       }}
     >
       {props.children}

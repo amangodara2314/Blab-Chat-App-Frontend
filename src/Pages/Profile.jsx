@@ -1,29 +1,53 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { IoCamera } from "react-icons/io5";
 import { LuPencil } from "react-icons/lu";
-import { useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { MainContext } from "../Context/Main";
+import axios from "axios";
+import { useDispatch, useSelector } from "react-redux";
+import { store } from "../store";
+import { login } from "../Reducers/user";
 
 const Profile = () => {
-  const { user } = useSelector((store) => store.user);
-  const { selectedChat, selectedGroup } = useContext(MainContext);
+  const { user, selectedGroup } = useSelector((store) => store.user);
+  const { API_BASE_URL, USER_URL } = useContext(MainContext);
+  const { selectedChat } = useContext(MainContext);
   const [about, setAbout] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const navigate = useNavigate();
+  const dispatcher = useDispatch();
 
   const handleEdit = () => {
     setIsEditing(true);
   };
 
-  const handleSave = () => {
-    setIsEditing(false);
+  const handleSave = (e) => {
+    e.preventDefault();
+    if (about == "" || user.about == about) {
+      setIsEditing(false);
+
+      return;
+    }
+    axios
+      .put(API_BASE_URL + USER_URL + "set-about/" + user._id, { about: about })
+      .then((success) => {
+        if (success.data.status == 1) {
+          setIsEditing(false);
+          dispatcher(login({ user: success.data.user }));
+        } else {
+          console.log(success.data.msg);
+        }
+      })
+      .catch((err) => console.log(err));
   };
 
   return (
     <div className="w-full h-full bg-gray-100 flex pt-8 justify-center relative">
       <Link
         onClick={() => {
+          if (!selectedChat && !selectedGroup) {
+            navigate("/");
+          }
           if (selectedChat) {
             navigate("/");
             return;
@@ -93,17 +117,17 @@ const Profile = () => {
                 </button>
               </form>
             ) : (
-              <div className="flex items-center">
-                <div className="md:ml-8">
+              <div className="text-center">
+                <div className="flex items-center">
                   <p className="text-gray-800 font-semibold">About</p>
-                  <p className="text-gray-600">{user?.about}</p>
+                  <button
+                    onClick={handleEdit}
+                    className="text-black font-semibold p-2 rounded-md"
+                  >
+                    <LuPencil />
+                  </button>
                 </div>
-                <button
-                  onClick={handleEdit}
-                  className="text-black font-semibold p-2 rounded-md ml-4"
-                >
-                  <LuPencil />
-                </button>
+                <p className="text-gray-600">{user?.about}</p>
               </div>
             )}
           </div>

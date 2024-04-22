@@ -2,15 +2,14 @@ import React, { useContext, useEffect, useRef, useState } from "react";
 import { MainContext } from "../Context/Main";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-
+import { IoSendSharp } from "react-icons/io5";
 import { store } from "../store";
 import axios from "axios";
 import socket from "../utils/socket";
 import { MdOutlineNotificationAdd } from "react-icons/md";
 import { IoIosLogOut } from "react-icons/io";
 import { FaUser } from "react-icons/fa6";
-
-import ResponsiveSidebar from "./ResponsiveSidebar";
+import { GrAttachment } from "react-icons/gr";
 import { Link } from "react-router-dom";
 const formatTimeFromTimestamp = require("../utils/formatTime");
 function Chat(props) {
@@ -34,10 +33,26 @@ function Chat(props) {
   } = useContext(MainContext);
   const messagesEndRef = useRef(null);
 
-  const { user } = useSelector((store) => store.user);
+  const { user, newGroupMessage } = useSelector((store) => store.user);
   const [chat, setChat] = useState(null);
   const dispatcher = useDispatch();
   const navigate = useNavigate();
+  const [file, setFile] = useState(null);
+  const [fileAdded, setFileAdded] = useState(false);
+  const [showEmojis, setShowEmojis] = useState(false);
+
+  const [showModal, setShowModal] = useState(false);
+  const [fullImage, setFullImage] = useState("");
+
+  const handleClick = (imageURL) => {
+    setFullImage(imageURL);
+    setShowModal(true);
+  };
+  const handleChange = (event) => {
+    const selectedFile = event.target.files[0];
+    setFile(selectedFile);
+    setFileAdded(true);
+  };
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
@@ -110,19 +125,31 @@ function Chat(props) {
 
   const sendMessage = (e) => {
     e.preventDefault();
-    if (e.target.text.value == "") {
+    const formData = new FormData();
+    if (file) {
+      formData.append("file", file);
+      if (!file.type.startsWith("image/")) {
+        alert("Please select an image file (JPEG, PNG, GIF)");
+        return;
+      }
+    }
+
+    if (e.target.text.value == "" && file == null) {
       return;
     }
+
+    formData.append("content", e.target.text.value);
+    formData.append("sender", user._id);
+    formData.append("recipient", selectedChat._id);
+
     axios
-      .post(API_BASE_URL + CHAT_URL + "send-message", {
-        sender: user._id,
-        recipient: selectedChat._id,
-        content: e.target.text.value,
-      })
+      .post(API_BASE_URL + CHAT_URL + "send-message", formData)
       .then((success) => {
         if (success.data.status == 1) {
           e.target.reset();
           setErr({ msg: "", flag: false });
+          setFile(null);
+          setFileAdded(false);
           setChat(success.data.popChat);
           sendMessageNotification(selectedChat._id, user._id);
         } else {
@@ -131,10 +158,22 @@ function Chat(props) {
       })
       .catch((err) => console.log(err));
   };
+  const handleReaction = (message, reaction) => {
+    axios
+      .put(API_BASE_URL + CHAT_URL + "send-reaction", {
+        messageId: message._id,
+        reaction: reaction,
+      })
+      .then((success) => {
+        if (success.data.status == 1) fetchChat();
+      })
+      .catch((error) => {
+        console.error("Error sending reaction:", error);
+      });
+  };
 
   return (
     <>
-      <ResponsiveSidebar />
       {isLogoutOpen ? (
         <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center bg-gray-800 bg-opacity-50 z-50">
           <div className="bg-white p-8 rounded shadow">
@@ -162,6 +201,23 @@ function Chat(props) {
           </div>
         </div>
       ) : null}
+      {showModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70 z-50">
+          <div className="max-w-full max-h-full mx-auto flex justify-center">
+            <img
+              src={fullImage}
+              className="w-[90%] h-[400px] md:w-[700px] md:h-[600px]"
+              alt=""
+            />
+          </div>
+          <button
+            className="absolute top-0 right-2 text-4xl m-4 text-white"
+            onClick={() => setShowModal(false)}
+          >
+            x
+          </button>
+        </div>
+      )}
       {selectedChat == null ? (
         <div className="w-full bg-gray-100 relative min-h-screen">
           <div className="md:hidden sticky top-0">
@@ -207,10 +263,10 @@ function Chat(props) {
             </div>
             <div
               className={`absolute text-sm font-bold text-white bg-green-600 right-[8px] top-[10px] rounded-full px-[7px] py-[2px] ${
-                newMessage.length == 0 ? "hidden" : ""
+                newGroupMessage.length + newMessage.length == 0 ? "hidden" : ""
               }`}
             >
-              {newMessage.length}
+              {newGroupMessage.length + newMessage.length}
             </div>
           </div>
           <div className="w-full p-6">
@@ -218,11 +274,33 @@ function Chat(props) {
               <div className="text-gray-500 text-center">
                 <p className="mb-4">Welcome to Blab!</p>
                 <p className="mb-4">Select a user to start chatting.</p>
-                <p className="mb-4 text-2xl text-red-400">
-                  This Project is Under Progess
+                <p className="mb-4 text-2xl text-blue-500 font-bold">
+                  This Project is Created By Aman Godara
                 </p>
-                <p className="mb-4 text-2xl text-red-400">
-                  Some Features May Not Work
+                <p className="mb-4 text-xl text-black-400 flex gap-4 items-center justify-center">
+                  Creator Socials -
+                  <div className="flex items-center gap-3">
+                    <a
+                      target="_blank"
+                      href="https://www.linkedin.com/in/aman-godara-8160ba2b7"
+                    >
+                      <img
+                        width={24}
+                        height={24}
+                        src="https://upload.wikimedia.org/wikipedia/commons/c/ca/LinkedIn_logo_initials.png"
+                        alt=""
+                      />
+                    </a>
+                    <a target="_blank" href="https://twitter.com/AmanGodara07">
+                      <img
+                        width={24}
+                        height={24}
+                        className="bg-black rounded"
+                        src="https://upload.wikimedia.org/wikipedia/commons/5/57/X_logo_2023_%28white%29.png"
+                        alt=""
+                      />
+                    </a>
+                  </div>
                 </p>
               </div>
             </div>
@@ -255,15 +333,14 @@ function Chat(props) {
                     className="w-12 h-12 rounded-full"
                     alt=""
                   />
-                  {selectedChat.username}
+                  <div className="flex flex-col justify-center w-full">
+                    <div className="">{selectedChat.username}</div>
+                    <span className="text-gray-500 font-normal text-sm truncate">
+                      {selectedChat.about}
+                    </span>
+                  </div>
                 </div>
                 <div className="flex items-center gap-3 relative md:hidden">
-                  <IoIosLogOut
-                    className="cursor-pointer text-xl"
-                    onClick={() => {
-                      setIsLogoutOpen(true);
-                    }}
-                  />
                   <Link to="/profile">
                     <FaUser className="cursor-pointer text-lg" />
                   </Link>
@@ -296,10 +373,12 @@ function Chat(props) {
                   </svg>
                   <div
                     className={`absolute text-sm font-bold text-white bg-green-600 right-[-4px] top-[-3px] rounded-full px-[7px] py-[2px] ${
-                      newMessage.length == 0 ? "hidden" : ""
+                      newMessage.length + newGroupMessage.length == 0
+                        ? "hidden"
+                        : ""
                     }`}
                   >
-                    {newMessage.length}
+                    {newMessage.length + newGroupMessage.length}
                   </div>
                 </div>
               </div>
@@ -343,15 +422,71 @@ function Chat(props) {
                         <div
                           key={index}
                           className={`${
-                            message.sender == user._id
+                            message.sender === user._id
                               ? "bg-green-400 self-end"
                               : "bg-blue-500 self-start text-white"
-                          } p-2 px-3 rounded-lg mb-2`}
+                          } p-2 px-3 rounded-lg mb-2 group`}
                         >
-                          <div className="flex flex-col">
+                          <div className="flex flex-col group">
+                            {message.attachment && (
+                              <div
+                                className="cursor-pointer mb-1"
+                                onClick={() =>
+                                  handleClick(
+                                    API_BASE_URL + "/" + message.attachment
+                                  )
+                                }
+                              >
+                                <img
+                                  src={API_BASE_URL + "/" + message.attachment}
+                                  width={250}
+                                  height={200}
+                                  alt=""
+                                />
+                              </div>
+                            )}
                             <span>{message.content}</span>
                             <div className="text-right text-[10px]">
+                              <span
+                                className={`text-2xl ${
+                                  message.reaction ? "" : "hidden"
+                                }`}
+                              >
+                                {message.reaction}
+                              </span>
                               {formatTimeFromTimestamp(message.timestamp)}
+                            </div>
+                            <div className="bg-white p-2 text-center mt-2 rounded-lg shadow-lg border border-gray-300 hidden group-hover:block">
+                              <span
+                                className="cursor-pointer mr-2 inline-block transform hover:scale-110 transition-transform"
+                                onClick={() => handleReaction(message, "😊")}
+                              >
+                                😊
+                              </span>
+                              <span
+                                className="cursor-pointer mr-2 inline-block transform hover:scale-110 transition-transform"
+                                onClick={() => handleReaction(message, "😂")}
+                              >
+                                😂
+                              </span>
+                              <span
+                                className="cursor-pointer mr-2 inline-block transform hover:scale-110 transition-transform"
+                                onClick={() => handleReaction(message, "😍")}
+                              >
+                                😍
+                              </span>
+                              <span
+                                className="cursor-pointer mr-2 inline-block transform hover:scale-110 transition-transform"
+                                onClick={() => handleReaction(message, "😎")}
+                              >
+                                😎
+                              </span>
+                              <span
+                                className="cursor-pointer mr-2 inline-block transform hover:scale-110 transition-transform"
+                                onClick={() => handleReaction(message, "🤔")}
+                              >
+                                🤔
+                              </span>
                             </div>
                           </div>
                         </div>
@@ -365,9 +500,26 @@ function Chat(props) {
           </div>
           <div className="sticky bottom-2 w-full">
             <form
+              encType="multipart/form-data"
               onSubmit={sendMessage}
               className="flex items-center rounded-lg px-2 gap-1"
             >
+              <label
+                htmlFor="file"
+                className={`px-3 py-3 bg-gray-300 rounded cursor-pointer ${
+                  fileAdded ? "bg-green-400" : ""
+                }`}
+              >
+                <input
+                  type="file"
+                  id="file"
+                  name="file"
+                  className="hidden"
+                  accept="image/jpeg, image/png, image/gif"
+                  onChange={handleChange}
+                />
+                <GrAttachment />
+              </label>
               <input
                 type="text"
                 name="text"
@@ -376,9 +528,9 @@ function Chat(props) {
               />
               <button
                 type="submit"
-                className="px-4 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                className="px-4 py-3 bg-blue-500 cursor-pointer text-white font-semibold rounded-lg shadow-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
               >
-                Send
+                <IoSendSharp />
               </button>
             </form>
           </div>

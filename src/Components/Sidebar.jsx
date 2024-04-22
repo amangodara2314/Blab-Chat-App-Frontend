@@ -38,7 +38,7 @@ function Sidebar(props) {
     newMessage,
     setNewMessage,
     setIsLogoutOpen,
-    setGroups,
+    handleSubmit,
     createGroup,
     setCreateGroup,
     groups,
@@ -47,14 +47,16 @@ function Sidebar(props) {
     setActiveTab,
     setGroupChat,
     fetchGroups,
+    groupName,
+    setGroupName,
+    setSelectedMembers,
   } = useContext(MainContext);
   const [query, setQuery] = useState("");
   const { user, selectedGroup, newGroupMessage } = useSelector(
     (store) => store.user
   );
   const navigator = useNavigate();
-  const [groupName, setGroupName] = useState("");
-  const [selectedMembers, setSelectedMembers] = useState([]);
+
   const dispatcher = useDispatch();
 
   useEffect(() => {
@@ -72,32 +74,6 @@ function Sidebar(props) {
       .catch((err) => console.log(err));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (selectedMembers.length == 0) {
-      return;
-    }
-    const data = {
-      name: groupName,
-      admin: user._id,
-      avatar: `https://api.multiavatar.com/${groupName}.png`,
-      participants: [...selectedMembers, user._id],
-    };
-    axios
-      .post(API_BASE_URL + GROUP_URL + "create-group", data)
-      .then((success) => {
-        fetchGroups(user._id);
-        e.target.reset();
-        setCreateGroup(false);
-        socket.emit("new-group", {
-          members: selectedMembers,
-          group: data,
-        });
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  };
   const toggleTab = (tab) => {
     setActiveTab(tab);
   };
@@ -322,7 +298,7 @@ function Sidebar(props) {
                   No users found
                 </div>
               ) : (
-                <ul className="">
+                <ul className="h-[500px] overflow-y-scroll">
                   {result.map((u, index) => {
                     const isFriend = friends.some((f) => f._id === u._id);
                     return (
@@ -369,12 +345,21 @@ function Sidebar(props) {
           <ul>
             <li className="flex items-center justify-center gap-8 p-3">
               <div
-                className={`text-lg font-semibold text-white cursor-pointer flex-grow text-center ${
+                className={`text-lg font-semibold text-white relative cursor-pointer flex-grow text-center ${
                   activeTab === "chat" ? "active-tab" : ""
                 }`}
                 onClick={() => toggleTab("chat")}
               >
                 Chat
+                {newMessage.length != 0 && activeTab === "groups" ? (
+                  <div
+                    className={`text-[15px] font-bold text-green-400 absolute drop-shadow right-[-12px] top-[-15px]`}
+                  >
+                    +{newMessage.length}
+                  </div>
+                ) : (
+                  ""
+                )}
               </div>
               <div
                 className={`text-lg font-semibold text-white cursor-pointer relative flex-grow text-center ${
@@ -390,9 +375,9 @@ function Sidebar(props) {
                 Groups
                 {newGroup && activeTab === "chat" ? (
                   <div
-                    className={`text-[12px] font-semibold text-green-400 absolute drop-shadow ${
+                    className={`text-[15px] font-semibold text-green-400 absolute drop-shadow ${
                       newGroupMessage.length == 0 ? "right-0" : "right-[70px]"
-                    } top-[-15px]`}
+                    } top-[-14px]`}
                   >
                     New Group
                   </div>
@@ -401,9 +386,9 @@ function Sidebar(props) {
                 )}
                 {newGroupMessage.length != 0 && activeTab === "chat" ? (
                   <div
-                    className={`text-[12px] font-semibold text-green-400 absolute drop-shadow right-[-12px] top-[-15px]`}
+                    className={`text-[15px] font-bold text-green-400 absolute drop-shadow right-[-10px] top-[-14px]`}
                   >
-                    New Message
+                    +{newGroupMessage.length}
                   </div>
                 ) : (
                   ""
@@ -526,6 +511,7 @@ function Sidebar(props) {
                             return;
                           }
                           if (selectedGroup._id != g._id) {
+                            socket.emit("leaveRoom", selectedGroup._id);
                             setSelectedChat(null);
                             setGroupChat(null);
                             dispatcher(filterNewGroupMessage({ g: g }));

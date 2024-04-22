@@ -11,6 +11,8 @@ import Signup from "./Pages/Signup";
 import { useContext, useEffect } from "react";
 import { MainContext } from "./Context/Main";
 import Group from "./Components/Group";
+import Removed from "./Pages/Removed";
+import NotFound from "./Components/NotFound";
 
 function App() {
   const { localToState } = useContext(MainContext);
@@ -44,6 +46,14 @@ function App() {
     {
       path: "/signup",
       element: <Signup />,
+    },
+    {
+      path: "/removed-from-group",
+      element: <Removed />,
+    },
+    {
+      path: "*",
+      element: <NotFound />,
     },
   ]);
   return (

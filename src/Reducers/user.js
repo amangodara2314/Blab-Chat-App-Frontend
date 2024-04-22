@@ -27,6 +27,7 @@ const UserSlice = createSlice({
       localStorage.removeItem("user");
       localStorage.removeItem("chat");
       localStorage.removeItem("newMessage");
+      localStorage.removeItem("groupMessages");
     },
     setSelectedGroup(state, { payload }) {
       const { g } = payload;
@@ -37,14 +38,21 @@ const UserSlice = createSlice({
       if (state.newGroupMessage.includes(payload.g._id)) {
         let filter = state.newGroupMessage.filter((m) => m != payload.g._id);
         state.newGroupMessage = filter;
+        localStorage.setItem("groupMessages", JSON.stringify(filter));
       }
     },
     setNewGroupMessage(state, { payload }) {
-      if (state.selectedGroup._id == payload.group) {
+      if (state.selectedGroup._id == payload?.group) {
         return;
       }
       const notify = [...state.newGroupMessage, payload.group];
       state.newGroupMessage = notify;
+      localStorage.setItem("groupMessages", JSON.stringify(notify));
+    },
+    lstoStateGroupMessages(state, { payload }) {
+      if (payload.notify) {
+        state.newGroupMessage = payload.notify;
+      }
     },
   },
 });
@@ -57,5 +65,6 @@ export const {
   setSelectedGroup,
   filterNewGroupMessage,
   setNewGroupMessage,
+  lstoStateGroupMessages,
 } = UserSlice.actions;
 export default UserSlice.reducer;

@@ -6,6 +6,7 @@ import { store } from "../store";
 import socket from "../utils/socket";
 import { MainContext } from "../Context/Main";
 import { lsToState } from "../Reducers/user";
+import ResponsiveSidebar from "../Components/ResponsiveSidebar";
 
 function MainPage(props) {
   const {
@@ -73,6 +74,9 @@ function MainPage(props) {
     <div className="min-h-screen flex">
       <Sidebar />
       <div className="flex-grow min-h-full">
+        <div className="md:hidden">
+          <ResponsiveSidebar />
+        </div>
         <Outlet />
       </div>
     </div>

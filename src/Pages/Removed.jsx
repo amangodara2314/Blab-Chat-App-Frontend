@@ -14,8 +14,9 @@ const Removed = () => {
     <div style={styles.container}>
       <h2>You've been removed from the group</h2>
       <p>
-        We're sorry, but you have been removed from this group. You can return
-        to the home page by clicking the button below.
+        We're sorry, but you have been removed from this group or the group has
+        been deleted. You can return to the home page by clicking the button
+        below.
       </p>
       <Link to="/" style={styles.button}>
         Return to Home

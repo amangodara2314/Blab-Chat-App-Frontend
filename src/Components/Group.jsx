@@ -200,7 +200,7 @@ function Group(props) {
         );
         socket.emit("deleted", {
           members: temp,
-          group: success.data.group._id,
+          group: selectedGroup._id,
         });
         fetchGroups(user._id);
         navigate("/");

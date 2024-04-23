@@ -39,8 +39,6 @@ function Chat(props) {
   const navigate = useNavigate();
   const [file, setFile] = useState(null);
   const [fileAdded, setFileAdded] = useState(false);
-  const [showEmojis, setShowEmojis] = useState(false);
-
   const [showModal, setShowModal] = useState(false);
   const [fullImage, setFullImage] = useState("");
 

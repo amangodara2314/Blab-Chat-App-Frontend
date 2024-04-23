@@ -28,6 +28,7 @@ const UserSlice = createSlice({
       localStorage.removeItem("chat");
       localStorage.removeItem("newMessage");
       localStorage.removeItem("groupMessages");
+      localStorage.removeItem("group");
     },
     setSelectedGroup(state, { payload }) {
       const { g } = payload;

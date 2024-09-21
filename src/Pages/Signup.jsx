@@ -1,15 +1,13 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { MainContext } from "../Context/Main";
 import axios from "axios";
 import { useSelector } from "react-redux";
 import { signup } from "../Reducers/user";
-import multiavatar from "@multiavatar/multiavatar/esm";
 
-function Signup(props) {
+export default function Component() {
   const { setErr, err, USER_URL, API_BASE_URL, dispatcher } =
     useContext(MainContext);
-  const [selectedAvatar, setSelectedAvatar] = useState(null);
   const [username, setUsername] = useState("");
   const [nav, setNav] = useState(false);
   const navigate = useNavigate();
@@ -23,7 +21,7 @@ function Signup(props) {
       navigate("/");
       setNav(false);
     }
-  }, [nav]);
+  }, [nav, navigate]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -36,8 +34,31 @@ function Signup(props) {
       password: e.target.password.value,
       avatars: `https://api.multiavatar.com/${username}.png`,
     };
+
     if (data.username === "" || data.email === "" || data.password === "") {
       setErr({ msg: "Please Fill All The Inputs", flag: true });
+      setIsDisabled(false);
+      setIsLoading(false);
+      return;
+    }
+
+    if (data.username.length < 4) {
+      setErr({
+        msg: "Username must be at least 4 characters long",
+        flag: true,
+      });
+      setIsDisabled(false);
+      setIsLoading(false);
+      return;
+    }
+
+    if (data.password.length < 6) {
+      setErr({
+        msg: "Password must be at least 6 characters long",
+        flag: true,
+      });
+      setIsDisabled(false);
+      setIsLoading(false);
       return;
     }
 
@@ -50,25 +71,23 @@ function Signup(props) {
           if (success.data.status == 1) {
             setIsDisabled(false);
             setIsLoading(false);
-
             dispatcher(signup({ user: success.data.user }));
             setNav(true);
           } else {
             setIsDisabled(false);
             setIsLoading(false);
-
             setErr({ msg: success.data.msg, flag: true });
           }
         })
         .catch((err) => {
           setIsDisabled(false);
           setIsLoading(false);
-
           setErr({ msg: err.message, flag: true });
         });
     } else {
       setErr({ msg: "Both Passwords Must Match", flag: true });
-      return;
+      setIsDisabled(false);
+      setIsLoading(false);
     }
   };
 
@@ -127,7 +146,7 @@ function Signup(props) {
               htmlFor="username"
               className="block text-gray-700 font-semibold mb-2"
             >
-              Username
+              Username (at least 4 characters)
             </label>
             <input
               value={username}
@@ -135,6 +154,8 @@ function Signup(props) {
               type="text"
               id="username"
               className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
+              minLength={4}
+              required
             />
           </div>
           <div className="mb-4">
@@ -148,6 +169,7 @@ function Signup(props) {
               type="email"
               id="email"
               className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
+              required
             />
           </div>
           <div className="mb-4">
@@ -155,12 +177,14 @@ function Signup(props) {
               htmlFor="password"
               className="block text-gray-700 font-semibold mb-2"
             >
-              Password
+              Password (at least 6 characters)
             </label>
             <input
               type="password"
               id="password"
               className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
+              minLength={6}
+              required
             />
           </div>
           <div className="mb-4">
@@ -175,6 +199,8 @@ function Signup(props) {
               id="confirmPassword"
               name="confirmPassword"
               className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
+              minLength={6}
+              required
             />
           </div>
           <div
@@ -207,7 +233,7 @@ function Signup(props) {
           </button>
           <Link to="/login">
             <span className="text-blue-800 text-sm font-bold">
-              Already Have an Account ?
+              Already Have an Account?
             </span>
           </Link>
         </form>
@@ -215,5 +241,3 @@ function Signup(props) {
     </div>
   );
 }
-
-export default Signup;
